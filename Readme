@@ -1,3 +1,7 @@
+Lamia Gul B23110006055
+Serena Salman B23110005151
+
+
 # Facial Attendance System
 
 A simple facial-recognition-based attendance system built in Python using OpenCV and the `face_recognition` library. Detects faces via webcam, recognizes registered people, and automatically logs their name, date, and time to a CSV file.
