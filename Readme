@@ -1,0 +1,89 @@
+# Facial Attendance System
+
+A simple facial-recognition-based attendance system built in Python using OpenCV and the `face_recognition` library. Detects faces via webcam, recognizes registered people, and automatically logs their name, date, and time to a CSV file.
+
+## Project Structure
+
+```
+Project/
+├── known_faces/              # registered face photos, one subfolder per person
+├── encodings.pickle          # generated face encodings (created by encode_faces.py)
+├── register_faces.py         # captures and saves new face photos
+├── encode_faces.py           # generates encodings.pickle from known_faces/
+├── face_recognizer.py        # standalone recognition test script
+├── attendance_manager.py     # CSV creation + attendance marking logic
+├── main.py                   # main application (run this to take attendance)
+├── Attendance.csv            # generated automatically at runtime
+├── requirements.txt          # pinned dependency versions
+└── README.md
+```
+
+## Setup
+
+**1. Create a virtual environment** (recommended — keeps dependencies isolated and avoids conflicts with any system-wide Python packages):
+```
+python -m venv venv
+```
+
+**2. Activate it:**
+- Windows: `venv\Scripts\activate`
+
+**3. Install dependencies:**
+```
+pip install --no-cache-dir opencv-python==4.10.0.84
+pip install --no-cache-dir numpy==1.26.4
+pip install --no-cache-dir dlib-bin
+pip install --no-cache-dir Pillow Click face-recognition-models
+pip install --no-cache-dir face_recognition==1.3.0 --no-deps
+```
+
+> **Note:** `dlib-bin` is used instead of `dlib` because it installs a precompiled binary — this avoids needing a C++ compiler / CMake build step, which is the most common source of installation failures on Windows.
+
+**4. Verify the install:**
+```
+python -c "import cv2; print(cv2.__version__); print(hasattr(cv2, 'CascadeClassifier'))"
+```
+Expected output: `4.10.0` and `True`.
+
+## How to Run
+
+Run these in order:
+
+**Step 1 — Register each person's face:**
+```
+python register_faces.py
+```
+Enter the person's name, press **SPACE** 3–5 times to capture a few photos from different angles, then **ESC** to finish. Repeat this once per person you want the system to recognize.
+
+**Step 2 — Generate face encodings:**
+```
+python encode_faces.py
+```
+Run this after registering anyone new — it rebuilds `encodings.pickle` from everyone currently in `known_faces/`.
+
+**Step 3 — Run the attendance system:**
+```
+python main.py
+```
+A webcam window opens. Recognized faces show a **green box** with their name and are automatically logged. Unrecognized faces show a **red box** labeled "Unknown" and are not logged. Press **ESC** to quit.
+
+## Output
+
+Attendance is saved to `Attendance.csv` with the following columns:
+
+| Name | Date | Time |
+|------|------|------|
+| Lamia | 2026-07-19 | 13:45:02 |
+
+Each person is logged **only once per day** — running the app multiple times on the same day will not create duplicate entries.
+
+## Troubleshooting
+
+- **Webcam won't open / "Camera index out of range":** close other apps using the camera (Zoom, Teams, Camera app), and check Windows Settings → Privacy & Security → Camera → allow desktop apps.
+- **`cv2` missing attributes / import errors:** usually caused by a corrupted install. Run `pip cache purge`, then reinstall `opencv-python` with `--no-cache-dir`.
+- **Low disk space on the system drive:** installing directly into a virtual environment on a drive with sufficient free space (rather than a crowded system drive) avoids most install failures.
+
+## Team
+
+- **Member 1:** Face registration, encoding, and recognition engine (`register_faces.py`, `encode_faces.py`, `face_recognizer.py`)
+- **Member 2:** Attendance logic and main application (`attendance_manager.py`, `main.py`, this README)
